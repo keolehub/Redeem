@@ -1,6 +1,10 @@
 --- # Poggit-CI Manifiesto. Abra el CI en https://poggit.pmmp.io/ci/keolehub/Redeem
-compilación por defecto: true
-ramas:
--principal
-Proyectos: 3
-... 
+build-by-default: true
+branches:
+- stable
+- 1.0.0
+- main
+projects: 
+  Redeem:
+    path: ""
+...
