@@ -1,6 +1,6 @@
---- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/keolehub/Redeem
-build-by-default: true
-branches:
-- main
-projects: []
-...
+--- # Poggit-CI Manifiesto. Abra el CI en https://poggit.pmmp.io/ci/keolehub/Redeem
+compilación por defecto: true
+ramas:
+-principal
+Proyectos: 3
+... 
