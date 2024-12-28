@@ -11,6 +11,7 @@ use pocketmine\player\Player;
 use pocketmine\utils\Config;
 use pocketmine\item\Item;
 use pocketmine\utils\TextFormat;
+use pocketmine\nbt\tag\CompoundTag;
 use keo\redeem\Main;
 
 class RedeemManager {
@@ -46,7 +47,7 @@ class RedeemManager {
         $menu->setName($isNew ? "Crear Redeem: $name" : "Editar Redeem: $name");
         if (!$isNew && $this->redeemExists($name)) {
             $items = $this->redeemData->getNested("$name", []);
-            $menu->getInventory()->setContents($items);
+            $menu->getInventory()->setContents($this->deserializeItems($items));
         }
 
         $menu->setListener(function (InvMenuTransaction $transaction) use ($name, $menu): InvMenuTransactionResult {
@@ -57,7 +58,7 @@ class RedeemManager {
                 return $transaction->continue();
             }
 
-            $this->redeemData->setNested("$name", $items);
+            $this->redeemData->setNested("$name", $this->serializeItems($items));
             $this->redeemData->save();
             $transaction->getPlayer()->sendMessage(TextFormat::GREEN . "Redeem \"$name\" guardado correctamente.");
             return $transaction->continue();
@@ -78,7 +79,8 @@ class RedeemManager {
         }
 
         $items = $this->redeemData->getNested("$name", []);
-        foreach ($items as $item) {
+        foreach ($items as $itemData) {
+            $item = $this->deserializeItem($itemData);
             $player->getInventory()->addItem($item);
         }
         $claimed = $this->redeemClaims->getNested($player->getName(), []);
@@ -88,4 +90,32 @@ class RedeemManager {
 
         $player->sendMessage(TextFormat::AQUA . "¡Has reclamado las recompensas del redeem \"$name\"!");
     }
+
+    public function serializeItems(array $items): array {
+        $serialized = [];
+        foreach ($items as $item) {
+            if ($item instanceof Item) {
+                $serialized[] = $this->serializeItem($item);
+            }
+        }
+        return $serialized;
+    }
+
+    public function serializeItem(Item $item): string {
+        return Serialize::serialize($item);
+    }
+
+    public function deserializeItems(array $items): array {
+        $deserialized = [];
+        foreach ($items as $itemData) {
+            $item = $this->deserializeItem($itemData);
+            $deserialized[] = $item;
+        }
+        return $deserialized;
+    }
+
+    public function deserializeItem(string $itemData): Item {
+        return Serialize::deserialize($itemData);
+    }
 }
+

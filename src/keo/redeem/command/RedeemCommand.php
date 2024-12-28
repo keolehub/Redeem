@@ -14,7 +14,7 @@ class RedeemCommand extends Command {
     private RedeemManager $manager;
 
     public function __construct(RedeemManager $manager) {
-        parent::__construct("redeem", "Made by keole", "/redeem <create|edit|claim> <nombre>", []);
+        parent::__construct("redeem", "Hecho por keole", "/redeem <create|edit|claim> <nombre>", []);
         $this->manager = $manager;
         $this->setPermission("redeem.command");
     }
@@ -44,6 +44,10 @@ class RedeemCommand extends Command {
                     $sender->sendMessage("No tienes permiso para crear un redeem.");
                     return;
                 }
+                if ($this->manager->redeemExists($name)) {
+                    $sender->sendMessage("¡Ya existe un redeem con ese nombre! Usa otro nombre.");
+                    return;
+                }
                 $this->manager->openRedeemEditor($sender, $name, true);
                 $sender->sendMessage("Has creado un nuevo redeem llamado '{$name}'.");
                 break;
@@ -53,11 +57,23 @@ class RedeemCommand extends Command {
                     $sender->sendMessage("No tienes permiso para editar un redeem.");
                     return;
                 }
+                if (!$this->manager->redeemExists($name)) {
+                    $sender->sendMessage("No existe un redeem con ese nombre.");
+                    return;
+                }
                 $this->manager->openRedeemEditor($sender, $name, false);
                 $sender->sendMessage("Estás editando el redeem llamado '{$name}'.");
                 break;
 
             case "claim":
+                if (!$this->manager->redeemExists($name)) {
+                    $sender->sendMessage("No existe un redeem con ese nombre.");
+                    return;
+                }
+                if ($this->manager->hasClaimed($sender, $name)) {
+                    $sender->sendMessage("Ya has reclamado este redeem.");
+                    return;
+                }
                 $this->manager->claimRedeem($sender, $name);
                 break;
 
