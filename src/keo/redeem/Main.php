@@ -29,12 +29,4 @@ class Main extends PluginBase {
     public function getRedeemManager(): RedeemManager {
         return $this->redeemManager;
     }
-
-    public function encodeItem(Item $item): string {
-        return $item->jsonSerialize();
-    }
-
-    public function decodeItem(string $data): Item {
-        return Item::jsonDeserialize($data);
-    }
 }
